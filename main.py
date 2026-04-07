@@ -56,4 +56,4 @@ def main():
         print("❌ Error al conectar con la página.")
 
 if __name__ == "__main__":
-    main() # Punto de entrada del script
+    main() # Punto de entrada del script    
