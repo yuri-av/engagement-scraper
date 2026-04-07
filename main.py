@@ -30,6 +30,8 @@ def main():
         # 4. Extracción de métricas (Fase 3) [cite: 24, 25]
         metricas = obtener_metricas(driver, url)
         
+        #Esta linea sirve para que esperar mi orden para seguir
+        input("Presioná ENTER cuando la página haya cargado totalmente y no haya pop-ups...")
         # Cerramos el navegador ni bien terminamos de sacar los datos
         driver.quit()
         
