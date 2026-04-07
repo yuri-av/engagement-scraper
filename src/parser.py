@@ -1,33 +1,26 @@
-"""parsear_metricas() recibe dos cosas — el HTML crudo que descargó fetch_html() y el tema al que corresponde ese post — 
-y su trabajo es buscar adentro de ese HTML los números que nos interesan: likes, resposteos y visualizaciones.
-Pensalo así. Cuando vos abrís Instagram en el navegador y ves que un post tiene 450 likes, 
-ese número está escrito en algún lugar del código HTML de la página. BeautifulSoup lo que hace
-es leer todo ese HTML y permitirte decirle "buscame el tag donde está el número de likes" para extraerlo.
+from src.locators import InstagramLocators, TikTokLocators, FacebookLocators
 
-El flujo completo sería:
-===============================================================================
-fetch_html()         →    parsear_metricas()     →    guardar_datos()
-descarga el HTML          encuentra los números        los guarda en Excel
-===============================================================================
-El problema concreto que tenemos ahora es que Instagram no pone los números directamente en el HTML — 
-los carga después con JavaScript, entonces cuando fetch_html() descarga la página, los likes todavía no aparecen. 
-Por eso la función por ahora devuelve ceros — es un esqueleto que vamos a completar cuando integremos Selenium, 
-que sí puede esperar a que JavaScript cargue todo."""
+# Cambiamos el nombre para que coincida con el Roadmap 
+def obtener_metricas(driver, url):
+    """
+    Extrae las métricas usando Selenium y los Locators [cite: 25-26].
+    """
+    if "instagram.com" in url:
+        locs = InstagramLocators
+    elif "tiktok.com" in url:
+        locs = TikTokLocators
+    elif "facebook.com" in url:
+        locs = FacebookLocators
+    else:
+        return None
 
-from bs4 import BeautifulSoup
-
-def parsear_metricas(html):
-    if not html: return None
-    soup = BeautifulSoup(html, 'html.parser')
     try:
-        # Extrae datos duros según las clases del DOM [cite: 25, 30]
-        likes = int(soup.find('span', class_='like-count').text.replace('.', ''))
-        resposteos = int(soup.find('span', class_='share-count').text.replace('.', ''))
-        visualizaciones = int(soup.find('span', class_='view-count').text.replace('.', ''))
+        # Extraemos los datos del DOM [cite: 26, 30]
         return {
-            'likes': likes, 
-            'resposteos': resposteos, 
-            'visualizaciones': visualizaciones
+            "likes": int(driver.find_element(*locs.LIKES).text.replace('.', '')),
+            "reposteos": int(driver.find_element(*locs.REPOSTS).text.replace('.', '')),
+            "visualizaciones": int(driver.find_element(*locs.VIEWS).text.replace('.', ''))
         }
-    except:
-        return None 
+    except Exception as e:
+        print(f"⚠️ Error al parsear: {e}")
+        return None
