@@ -16,16 +16,18 @@ que sí puede esperar a que JavaScript cargue todo."""
 
 from bs4 import BeautifulSoup
 
-def parsear_metricas(html, tema):
-    if html is None:
-        return None
-    soup = BeautifulSoup(html, "html.parser")
-    
-    resultado = {
-        "tema": tema,
-        "likes": 0,
-        "reposteos": 0,
-        "visualizaciones": 0
-    }
-    
-    return resultado
+def parsear_metricas(html):
+    if not html: return None
+    soup = BeautifulSoup(html, 'html.parser')
+    try:
+        # Extrae datos duros según las clases del DOM [cite: 25, 30]
+        likes = int(soup.find('span', class_='like-count').text.replace('.', ''))
+        resposteos = int(soup.find('span', class_='share-count').text.replace('.', ''))
+        visualizaciones = int(soup.find('span', class_='view-count').text.replace('.', ''))
+        return {
+            'likes': likes, 
+            'resposteos': resposteos, 
+            'visualizaciones': visualizaciones
+        }
+    except:
+        return None 

@@ -2,34 +2,22 @@ import pandas as pd
 from datetime import date
 import os
 
-# Crea un archivo excel y lo guarda en el disco // Formato de fecha: AAAA/MM/DD
-
-
-lista_metricas = [ # TEST: BORRAR ANTES DE USAR EN PRODUCCION
-    {"tema": "branding", 
-     "likes": 150, 
-     "resposteos": 20, 
-     "visualizaciones": 1000},
-    
-    {"tema": "IA en marketing", 
-     "likes": 450, 
-     "resposteos": 85, 
-     "visualizaciones": 5000},
-]
-
-# Dirección del archivo  (PERSONALIZAR SI NECESARIO EN MAIN)
-
-def guardar_datos(lista_metricas,ruta = "data/output/"):
-    
-    # Crea carpeta si no existe en la máquina
-    os.makedirs(ruta, exist_ok = True)
-    nombre_archivo  =  "metricas_"    
-    # Crea el DataFrame
+def guardar_datos(lista_metricas, ruta="data/output/"):
+    os.makedirs(ruta, exist_ok=True)
     df = pd.DataFrame(lista_metricas)
-    hoy = date.today()
-    # Crea archivo en la carpeta 
-    excel = df.to_excel(f"{ruta}{nombre_archivo}{hoy}.xlsx", index=False)
-
+    nombre = f"{ruta}metricas_{date.today()}.xlsx"
+    df.to_excel(nombre, index=False)
     return df
-    
-guardar_datos(lista_metricas)
+
+def calcular_engagement(df):
+    # Evitamos división por cero filtrando visualizaciones > 0
+    df = df[df['visualizaciones'] > 0].copy()
+    df['Probabilidad_Exito'] = ((df['likes'] + df['resposteos']) / df['visualizaciones'] * 100).round(2)
+    return df
+
+def mostrar_resultados(df):
+    # Orden descendente para ver el éxito primero [cite: 54, 62]
+    ranked = df.sort_values('Probabilidad_Exito', ascending=False)
+    print(ranked.to_string(index=False))
+    ranked.to_excel('data/output/ranking_final.xlsx', index=False)
+    return ranked
